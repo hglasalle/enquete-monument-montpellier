@@ -13,6 +13,8 @@ une enquête interactive de style Genially, pensée pour l’iPad.
 - Sauvegarde automatique des réponses sur l’appareil (localStorage).
 - Impression / export PDF et téléchargement du carnet en `.txt`.
 - Interface tactile : grandes cibles, balayage gauche/droite, plein écran iOS.
+- Habillage « papier ancien » évoquant la Première Guerre mondiale et les tranchées,
+  avec une photographie du monument aux morts de Montpellier.
 
 ## Utilisation en classe
 
@@ -28,6 +30,7 @@ une enquête interactive de style Genially, pensée pour l’iPad.
 
 ```
 index.html   → toute l’application (HTML + CSS + JS, illustrations SVG intégrées)
+assets/      → photographie du monument aux morts (facultative)
 README.md    → ce fichier
 .nojekyll    → empêche GitHub Pages d’ignorer certains fichiers
 ```
@@ -43,6 +46,9 @@ Le site est statique : aucun build, aucune dépendance.
 3. **Settings → Pages → Deploy from a branch → main / (root)**.
 4. L’adresse est de la forme `https://<compte>.github.io/<depot>/`.
 
+> Si `assets/monument-montpellier.jpg` est absent, le site charge automatiquement
+> la photographie depuis Wikimedia Commons (nécessite une connexion Internet).
+
 ### En local
 
 Ouvrir `index.html` dans un navigateur suffit. Pour que la sauvegarde
@@ -55,3 +61,10 @@ Fiche élève : *Fiche_eleve_monument_aux_morts_Montpellier_mise_en_page.pdf*.
 Les intitulés des chapitres et les libellés d’interface ont été ajoutés pour
 la mise en scène ; les questions, consignes et indices du document n’ont pas
 été modifiés.
+
+## Crédit photographique
+
+*War memorial Montpellier* — Andrew Dalby, **domaine public** (PD-self),
+via Wikimedia Commons :
+<https://commons.wikimedia.org/wiki/File:War_memorial_Montpellier.JPG>.
+La photographie est recadrée et légèrement sépia pour l’habillage du site.
