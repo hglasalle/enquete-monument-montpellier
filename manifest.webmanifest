@@ -1,0 +1,13 @@
+{
+  "name": "Enquete - Le monument aux morts de Montpellier",
+  "short_name": "Enquete Monument",
+  "description": "Enquete interactive sur le monument aux morts de Montpellier : materiaux, gestes et symboles.",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#14110c",
+  "theme_color": "#1a150e",
+  "icons": []
+}
