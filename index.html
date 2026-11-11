@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a3a42">
+<meta name="description" content="Enquête interactive sur le monument aux morts de Montpellier : matériaux, gestes et symboles.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f6b6b'/%3E%3Cpolygon points='32,8 40,46 24,46' fill='%23f7f2e7'/%3E%3Ccircle cx='32' cy='50' r='6' fill='%23d94f45'/%3E%3C/svg%3E">
+<title>Enquête — Le monument aux morts de Montpellier</title>
+<style>
+:root{
+  --ink:#122b33;
+  --ink-soft:#46616a;
+  --paper:#fbf6ec;
+  --paper-2:#fffdf7;
+  --sand:#f1e4cd;
+  --teal:#0f6b6b;
+  --teal-deep:#0a4a4f;
+  --poppy:#d94f45;
+  --gold:#e9b949;
+  --sage:#8fb3a3;
+  --font-display:"Avenir Next","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  --font-body:"Avenir Next","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  --accent:#0f6b6b;
+  --accent-soft:#e3f0ed;
+  --accent-ring:rgba(15,107,107,.18);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{
+  font-family:var(--font-body);
+  color:var(--ink);
+  background:#082e36;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+button{font-family:inherit}
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+
+/* ---------- Décor ---------- */
+#bg{position:fixed;inset:0;overflow:hidden;z-index:0;
+  background:
+    radial-gradient(1200px 800px at 12% 8%, #176f72 0%, transparent 62%),
+    radial-gradient(1000px 760px at 88% 90%, #2f6b5e 0%, transparent 62%),
+    linear-gradient(160deg,#062a31,#0d4f56 55%,#19685f 100%);
+}
+#bg::after{content:"";position:absolute;inset:0;
+  background-image:radial-gradient(rgba(255,255,255,.09) 1px, transparent 1px);
+  background-size:4px 4px;opacity:.35;mix-blend-mode:overlay;pointer-events:none}
+.blob{position:absolute;border-radius:50%;filter:blur(42px);opacity:.4;animation:float 20s ease-in-out infinite}
+.b1{width:420px;height:420px;left:-120px;top:-100px;background:#2f9a8c}
+.b2{width:360px;height:360px;right:-90px;top:18%;background:#e9b949;opacity:.18;animation-delay:-6s}
+.b3{width:520px;height:520px;left:24%;bottom:-260px;background:#1f7d72;opacity:.45;animation-delay:-12s}
+.b4{width:240px;height:240px;right:16%;bottom:8%;background:#d94f45;opacity:.16;animation-delay:-3s}
+@keyframes float{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(18px,-26px,0) scale(1.06)}}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.06;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.6'/></svg>")}
+
+/* ---------- Barre du haut ---------- */
+.topbar{
+  position:fixed;left:0;right:0;top:0;z-index:30;
+  display:flex;align-items:center;gap:10px;
+  padding:calc(10px + env(safe-area-inset-top)) 14px 10px;
+  transition:opacity .3s;
+}
+.topbar.hidden{opacity:0;pointer-events:none}
+.icon-btn{
+  width:46px;height:46px;border-radius:16px;border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.12);color:#fff;font-size:20px;display:grid;place-items:center;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);cursor:pointer;
+  transition:transform .15s, background .15s;
+}
+.icon-btn:active{transform:scale(.92);background:rgba(255,255,255,.22)}
+.progress-wrap{
+  flex:1;display:flex;align-items:center;gap:10px;min-width:0;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+  border-radius:18px;padding:8px 12px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+.progress-track{flex:1;height:10px;border-radius:99px;background:rgba(0,0,0,.25);overflow:hidden;min-width:40px}
+.progress-fill{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,#e9b949,#f7d989);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.progress-label{color:#fff;font-size:12px;font-weight:800;letter-spacing:.4px;white-space:nowrap;opacity:.95}
+.score-chip{
+  display:flex;align-items:center;gap:6px;height:46px;padding:0 14px;border-radius:16px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:#fff;
+  font-weight:900;font-size:15px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);white-space:nowrap;
+}
+.score-chip.bump{animation:bump .45s ease}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+
+/* ---------- Scène ---------- */
+#stage{
+  position:relative;z-index:5;height:100vh;height:100dvh;overflow-y:auto;overflow-x:hidden;
+  padding:calc(82px + env(safe-area-inset-top)) 16px calc(30px + env(safe-area-inset-bottom));
+  display:flex;align-items:flex-start;justify-content:center;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
+#stage::-webkit-scrollbar{display:none}
+#stage.center{align-items:center;padding-top:calc(74px + env(safe-area-inset-top))}
+.scene{width:100%;max-width:1080px;animation:sceneIn .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes sceneIn{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:none}}
+.card{
+  background:var(--paper);border-radius:32px;overflow:hidden;
+  box-shadow:0 30px 70px rgba(0,0,0,.32),0 2px 0 rgba(255,255,255,.55) inset;
+  border:1px solid rgba(255,255,255,.55);
+}
+
+/* ---------- Intro ---------- */
+.intro-card{display:grid;grid-template-columns:1fr;gap:0;position:relative}
+@media(min-width:880px){.intro-card{grid-template-columns:1.05fr .95fr;min-height:600px}}
+.intro-left{padding:38px 34px 34px;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:2}
+.kicker{
+  display:inline-flex;align-items:center;gap:8px;align-self:flex-start;
+  background:var(--teal);color:#fff;font-size:12px;font-weight:900;letter-spacing:2.4px;text-transform:uppercase;
+  padding:8px 14px;border-radius:99px;margin-bottom:18px;box-shadow:0 8px 18px rgba(15,107,107,.3);
+}
+h1{
+  font-family:var(--font-display);font-weight:900;letter-spacing:-.8px;
+  font-size:clamp(34px,4.6vw,54px);line-height:1.02;margin:0 0 10px;color:var(--ink);
+}
+h1 .accent{color:var(--poppy)}
+.subtitle{
+  font-size:clamp(16px,1.7vw,20px);color:var(--ink-soft);font-weight:600;margin:0 0 22px;
+  font-style:italic;
+}
+.intro-note{
+  display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid #e7dcc8;border-radius:18px;
+  padding:14px 16px;margin-bottom:24px;font-size:14.5px;line-height:1.5;color:var(--ink-soft);
+}
+.intro-note .em{font-size:22px;line-height:1}
+.intro-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.intro-meta{display:flex;gap:18px;margin-top:24px;flex-wrap:wrap;color:#6d7f83;font-size:12.5px;font-weight:700}
+.intro-meta span{display:flex;align-items:center;gap:6px}
+.intro-art{position:relative;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 42%, #fdf3df 0%, #f3e3c6 52%, #e8d3ae 100%);
+  min-height:320px;padding:18px;overflow:hidden}
+@media(min-width:880px){.intro-art{border-left:1px solid #e7dcc8}}
+.intro-art::before{content:"";position:absolute;inset:0;
+  background-image:radial-gradient(rgba(120,90,40,.12) 1px,transparent 1px);background-size:5px 5px;opacity:.5}
+.hero-art{width:100%;max-width:430px;height:auto;position:relative;z-index:2;filter:drop-shadow(0 18px 24px rgba(80,50,20,.18))}
+.float-badge{
+  position:absolute;z-index:3;background:#fff;border-radius:16px;padding:10px 14px;
+  font-weight:900;font-size:13px;color:var(--teal-deep);box-shadow:0 10px 22px rgba(60,40,10,.16);
+  display:flex;align-items:center;gap:8px;animation:floaty 5s ease-in-out infinite;
+}
+.fb1{top:8%;left:6%}
+.fb2{bottom:9%;right:5%;animation-delay:-2.5s;color:var(--poppy)}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(2deg)}}
+
+/* ---------- Briefing ---------- */
+.brief{padding:34px}
+.brief h2{font-size:clamp(26px,3.2vw,36px);margin:0 0 8px;letter-spacing:-.5px}
+.brief .lead{font-size:18px;line-height:1.55;color:var(--ink-soft);max-width:760px;margin:0 0 24px}
+.brief .lead strong{color:var(--ink)}
+.brief-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:0 0 26px}
+.brief-item{background:#fff;border:1px solid #e7dcc8;border-radius:20px;padding:16px;display:flex;gap:12px;align-items:flex-start}
+.brief-item .num{
+  flex:0 0 38px;height:38px;border-radius:12px;background:var(--sand);color:#8a6a2f;
+  display:grid;place-items:center;font-weight:900;font-size:14px;
+}
+.brief-item h3{margin:0 0 3px;font-size:15.5px}
+.brief-item p{margin:0;font-size:13.5px;color:var(--ink-soft);line-height:1.45}
+.howto{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:26px}
+.howto span{display:inline-flex;align-items:center;gap:7px;background:#eef4ef;border-radius:99px;padding:8px 13px;font-size:13px;font-weight:700;color:#3d5a50}
+
+/* ---------- Chapitre ---------- */
+.chapter-card{position:relative;overflow:hidden;color:#fff;padding:48px 38px;min-height:420px;display:flex;flex-direction:column;justify-content:center;
+  background:linear-gradient(135deg,var(--accent),#0a3a42 120%)}
+.chapter-card::before{content:"";position:absolute;width:520px;height:520px;border-radius:50%;right:-160px;top:-160px;background:rgba(255,255,255,.08)}
+.chapter-card::after{content:"";position:absolute;width:320px;height:320px;border-radius:50%;left:-120px;bottom:-160px;background:rgba(255,255,255,.06)}
+.chapter-big{font-size:clamp(90px,14vw,150px);font-weight:900;line-height:.8;opacity:.22;letter-spacing:-8px;position:relative;z-index:2}
+.chapter-card h2{font-size:clamp(30px,4.4vw,48px);margin:8px 0 8px;position:relative;z-index:2;letter-spacing:-.8px}
+.chapter-card p{position:relative;z-index:2;margin:0 0 26px;opacity:.9;font-size:16px;font-weight:600}
+.chapter-card .btn{align-self:flex-start;position:relative;z-index:2}
+.chapter-art{position:absolute;right:24px;bottom:10px;font-size:clamp(80px,14vw,150px);opacity:.16;line-height:1;transform:rotate(-6deg)}
+
+/* ---------- Question ---------- */
+.q-card{position:relative}
+.q-ribbon{height:8px;background:linear-gradient(90deg,var(--accent),#e9b949)}
+.q-layout{display:grid;grid-template-columns:1fr;gap:0}
+@media(min-width:940px){.q-layout{grid-template-columns:1.12fr .88fr}}
+.q-main{padding:26px 30px 28px;min-width:0}
+.q-side{
+  background:linear-gradient(165deg,#fffdf7,#f3ead9);
+  border-left:1px dashed #d9cdb6;display:flex;align-items:center;justify-content:center;
+  padding:24px;position:relative;overflow:hidden;min-height:220px;
+}
+@media(max-width:939px){.q-side{border-left:none;border-top:1px dashed #d9cdb6;min-height:180px;padding:18px}}
+.q-side::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(120,90,40,.13) 1px,transparent 1px);background-size:5px 5px;opacity:.45}
+.q-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.q-chip{font-size:11.5px;font-weight:900;letter-spacing:1.6px;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:6px 11px;border-radius:99px}
+.q-icon{width:44px;height:44px;border-radius:14px;background:#fff;border:1px solid #e7dcc8;display:grid;place-items:center;font-size:22px;box-shadow:0 4px 10px rgba(80,60,20,.08)}
+.q-text{font-size:clamp(21px,2.5vw,29px);line-height:1.24;letter-spacing:-.3px;margin:0 0 16px;font-weight:800}
+.q-text .q-n{color:var(--accent);opacity:.45;font-weight:900;margin-right:2px}
+.q-hint-btn{
+  display:inline-flex;align-items:center;gap:8px;background:#f4ecdd;border:1px dashed #cdbb9b;color:#7a5f2e;
+  border-radius:99px;padding:10px 16px;font-size:13.5px;font-weight:800;cursor:pointer;min-height:46px;
+}
+.q-hint-btn:active{transform:scale(.97)}
+.q-hint{
+  margin:12px 0 0;background:#fff7e2;border-left:4px solid var(--gold);border-radius:0 14px 14px 0;
+  padding:12px 14px;font-size:14.5px;line-height:1.5;color:#6a5426;display:none;
+}
+.q-hint.show{display:block;animation:sceneIn .3s ease}
+.answer{margin:18px 0 6px}
+.options{display:grid;gap:10px}
+@media(min-width:640px){.options.two{grid-template-columns:1fr 1fr}}
+.opt{
+  display:flex;align-items:center;gap:12px;width:100%;padding:15px 17px;border-radius:18px;
+  border:2px solid #ded3c0;background:#fff;font-size:16.5px;font-weight:700;color:var(--ink);
+  text-align:left;cursor:pointer;transition:transform .12s,border-color .18s,background .18s,box-shadow .18s;
+  min-height:56px;line-height:1.3;
+}
+.opt:active{transform:scale(.985)}
+.opt .mark{
+  flex:0 0 24px;height:24px;border-radius:50%;border:2px solid #c9bda6;display:grid;place-items:center;
+  font-size:13px;color:#fff;transition:.18s;background:#fff;
+}
+.opt.selected{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 6px 16px var(--accent-ring)}
+.opt.selected .mark{background:var(--accent);border-color:var(--accent)}
+.opt.selected .mark::after{content:"✓";font-weight:900}
+.opt.phase{padding:13px 15px;font-size:15px}
+.field-row{display:grid;grid-template-columns:1fr;gap:12px;margin-top:14px}
+@media(min-width:640px){.field-row.two{grid-template-columns:1.6fr 1fr}}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:12.5px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;color:#7c6a4c}
+.field input{
+  width:100%;border:2px solid #ded3c0;border-radius:14px;padding:12px 14px;font:inherit;font-size:16px;
+  background:#fffdf7;color:var(--ink);min-height:50px;
+}
+.field input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-ring)}
+textarea.answer-box{
+  width:100%;min-height:150px;border:2px solid #ded3c0;border-radius:18px;padding:14px 16px;
+  font:inherit;font-size:16.5px;line-height:1.55;background:#fffdf7;color:var(--ink);resize:vertical;
+}
+textarea.answer-box:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-ring)}
+.number-wrap{display:flex;align-items:center;gap:12px}
+.number-wrap input{
+  width:130px;text-align:center;font-size:34px;font-weight:900;color:var(--accent);
+  border:2px solid #ded3c0;border-radius:18px;padding:10px;background:#fffdf7;min-height:64px;
+}
+.number-wrap input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-ring)}
+.number-wrap .unit{font-size:15px;color:var(--ink-soft);font-weight:700}
+.q-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:20px}
+.q-actions .spacer{flex:1}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none;cursor:pointer;
+  border-radius:99px;padding:14px 22px;font-size:16px;font-weight:900;min-height:52px;
+  transition:transform .14s,box-shadow .18s,background .18s;letter-spacing:.1px;
+}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 12px 24px var(--accent-ring)}
+.btn-primary:hover{box-shadow:0 16px 30px var(--accent-ring)}
+.btn-ghost{background:transparent;color:var(--ink-soft);border:2px solid rgba(20,50,50,.14)}
+.btn-gold{background:var(--gold);color:#3d2b05;box-shadow:0 12px 24px rgba(233,185,73,.35)}
+.btn-white{background:#fff;color:var(--accent);box-shadow:0 10px 22px rgba(0,0,0,.14)}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.btn .arr{font-size:18px;line-height:1}
+.mini-note{font-size:12.5px;color:#8a7a5f;margin-top:10px}
+.saved-flag{display:inline-flex;align-items:center;gap:6px;color:#2c7a5a;font-weight:800;font-size:13px}
+
+/* Illustration panneaux */
+.side-svg{width:100%;max-width:360px;height:auto;position:relative;z-index:2;filter:drop-shadow(0 14px 20px rgba(80,60,20,.14))}
+.side-emoji{font-size:clamp(84px,11vw,130px);position:relative;z-index:2;filter:drop-shadow(0 14px 18px rgba(80,60,20,.16));animation:floaty 6s ease-in-out infinite}
+
+/* ---------- Croquis ---------- */
+.draw-wrap{padding:28px 30px 30px}
+.draw-grid{display:grid;grid-template-columns:1fr;gap:18px}
+@media(min-width:940px){.draw-grid{grid-template-columns:1.25fr .75fr}}
+.canvas-shell{background:#fff;border:2px solid #ded3c0;border-radius:22px;padding:10px;box-shadow:inset 0 2px 10px rgba(80,60,20,.06)}
+canvas#sketch{width:100%;height:auto;display:block;border-radius:14px;touch-action:none;cursor:crosshair;background:#fff}
+.tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.swatch{width:44px;height:44px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px #d6c9b1;cursor:pointer;transition:transform .12s}
+.swatch:active{transform:scale(.9)}
+.swatch.active{box-shadow:0 0 0 3px var(--teal)}
+.tool-btn{border:1px solid #ded3c0;background:#fff;border-radius:12px;min-height:44px;padding:0 14px;font-weight:800;font-size:13px;color:var(--ink-soft);cursor:pointer}
+.legends{display:flex;flex-direction:column;gap:10px}
+.legend-row{display:flex;align-items:center;gap:10px}
+.legend-num{flex:0 0 30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:900;font-size:13px}
+.legend-row input{flex:1;border:2px solid #ded3c0;border-radius:12px;padding:10px 12px;font:inherit;font-size:14.5px;background:#fffdf7;min-height:46px}
+.legend-row input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-ring)}
+
+/* ---------- Carnet final ---------- */
+.final-card{padding:0}
+.final-head{background:linear-gradient(135deg,var(--teal-deep),#0f6b6b 70%,#2f9a8c);color:#fff;padding:34px 32px;position:relative;overflow:hidden}
+.final-head::after{content:"";position:absolute;width:320px;height:320px;border-radius:50%;right:-100px;top:-140px;background:rgba(255,255,255,.08)}
+.final-head .kicker{background:rgba(255,255,255,.16);box-shadow:none}
+.final-head h2{margin:0 0 6px;font-size:clamp(28px,4vw,42px);letter-spacing:-.6px;position:relative;z-index:2}
+.final-head p{margin:0;opacity:.9;font-weight:600;position:relative;z-index:2}
+.final-body{padding:26px 30px 30px}
+.score-hero{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:24px}
+@media(min-width:760px){.score-hero{grid-template-columns:auto 1fr;align-items:center}}
+.score-ring{
+  width:170px;height:170px;border-radius:50%;display:grid;place-items:center;margin:0 auto;
+  background:conic-gradient(var(--gold) calc(var(--p)*1%), #e6dbc6 0);
+  position:relative;
+}
+.score-ring::before{content:"";position:absolute;inset:12px;background:var(--paper);border-radius:50%}
+.score-inner{position:relative;z-index:2;text-align:center}
+.score-inner .val{font-size:46px;font-weight:900;line-height:1;color:var(--teal-deep)}
+.score-inner .max{font-size:12px;font-weight:800;color:#8a7a5f;letter-spacing:1px}
+.rank-box h3{margin:0 0 4px;font-size:24px;color:var(--poppy)}
+.rank-box p{margin:0 0 12px;color:var(--ink-soft);font-size:14.5px;line-height:1.5}
+.stamp-board{display:flex;flex-wrap:wrap;gap:8px}
+.stamp{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:18px;border:2px dashed #d6c9b1;background:#fff;color:#b9ac93;position:relative}
+.stamp.on{border:2px solid var(--teal);background:#e6f2ee;color:var(--teal-deep);box-shadow:0 4px 10px rgba(15,107,107,.15)}
+.stamp.on::after{content:"✓";position:absolute;right:-2px;bottom:-2px;width:16px;height:16px;border-radius:50%;background:var(--teal);color:#fff;font-size:10px;display:grid;place-items:center;font-weight:900}
+.recap{margin-top:6px}
+.recap-chapter{margin:22px 0 10px;display:flex;align-items:center;gap:10px}
+.recap-chapter .dot{width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.recap-chapter h4{margin:0;font-size:13px;letter-spacing:1.6px;text-transform:uppercase;color:var(--accent)}
+.recap-item{background:#fff;border:1px solid #e7dcc8;border-radius:16px;padding:12px 14px;margin-bottom:8px}
+.recap-q{font-size:13px;font-weight:800;color:#6f6047;margin-bottom:3px}
+.recap-a{font-size:15px;line-height:1.45;white-space:pre-wrap;color:var(--ink)}
+.recap-a.empty{color:#b3a68e;font-style:italic}
+.recap-croquis{background:#fff;border:1px solid #e7dcc8;border-radius:16px;padding:12px;margin-bottom:8px}
+.recap-croquis img{width:100%;border-radius:10px;display:block}
+.recap-croquis .legs{display:grid;gap:4px;margin-top:10px;font-size:13.5px}
+.final-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+
+/* ---------- Overlays ---------- */
+.stamp-pop{position:fixed;inset:0;z-index:80;display:grid;place-items:center;pointer-events:none}
+.stamp-pop .disc{
+  width:180px;height:180px;border-radius:50%;display:grid;place-items:center;text-align:center;
+  background:var(--accent);color:#fff;border:5px dashed rgba(255,255,255,.85);
+  transform:rotate(-8deg);animation:stampIn .55s cubic-bezier(.2,1.7,.4,1);
+  box-shadow:0 24px 50px rgba(0,0,0,.35);
+}
+.stamp-pop .disc .big{font-size:44px;line-height:1}
+.stamp-pop .disc .lbl{font-size:13px;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.stamp-pop .disc .pts{font-size:12px;font-weight:800;opacity:.9}
+@keyframes stampIn{0%{transform:rotate(-8deg) scale(2.2);opacity:0}60%{opacity:1}100%{transform:rotate(-8deg) scale(1);opacity:1}}
+#confetti{position:fixed;inset:0;z-index:70;pointer-events:none}
+.toast{
+  position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
+  background:#122b33;color:#fff;border-radius:99px;padding:12px 20px;font-weight:800;font-size:14px;
+  z-index:90;opacity:0;transition:.25s;pointer-events:none;box-shadow:0 14px 30px rgba(0,0,0,.3);max-width:90vw;text-align:center;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+
+/* ---------- Impression ---------- */
+#printArea{display:none}
+@media print{
+  @page{size:A4;margin:14mm}
+  html,body{overflow:visible;background:#fff;height:auto}
+  #bg,.grain,.topbar,#stage,.toast,#confetti,.stamp-pop{display:none!important}
+  #printArea{display:block;color:#000;font-family:Georgia,"Times New Roman",serif}
+  #printArea h1{font-size:22pt;margin:0 0 2mm;color:#000}
+  #printArea .sub{font-size:11pt;font-style:italic;margin:0 0 6mm;color:#333}
+  #printArea h2{font-size:12pt;margin:6mm 0 2mm;border-bottom:1px solid #999;padding-bottom:1mm}
+  #printArea .item{margin:0 0 3mm;page-break-inside:avoid}
+  #printArea .q{font-size:10pt;font-weight:bold;margin:0}
+  #printArea .a{font-size:10.5pt;margin:1mm 0 0;white-space:pre-wrap}
+  #printArea img{max-width:100%;border:1px solid #999;margin-top:2mm}
+  #printArea .legs{font-size:10pt;margin-top:1mm}
+  #printArea .score{font-size:11pt;margin:4mm 0}
+}
+</style>
+</head>
+<body>
+
+<div id="bg">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>
+</div>
+<div class="grain"></div>
+
+<header class="topbar hidden" id="topbar">
+  <button class="icon-btn" id="btnHome" aria-label="Accueil" title="Accueil">⌂</button>
+  <button class="icon-btn" id="btnCarnet" aria-label="Mon carnet" title="Mon carnet">📓</button>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progFill"></div></div>
+    <div class="progress-label" id="progText">0 / 14</div>
+  </div>
+  <div class="score-chip" id="scoreChip">⭐ <span id="scoreVal">0</span></div>
+  <button class="icon-btn" id="btnSound" aria-label="Son" title="Son">🔊</button>
+</header>
+
+<main id="stage" class="center"></main>
+<canvas id="confetti"></canvas>
+<div class="toast" id="toast"></div>
+<div id="printArea"></div>
+
+<script>
+/* =========================================================
+   DONNÉES — textes issus de la fiche élève (non modifiés)
+   ========================================================= */
+const INTRO_LINE = "Observe le monument et ce qui l’entoure. Note des indices précis : inscriptions, formes, matériaux, gestes et symboles.";
+const CROQUIS_TITLE = "MON CROQUIS";
+const CROQUIS_TEXT = "Dessine le monument et ajoute trois légendes correspondant à des détails observés.";
+const BONUS_TITLE = "POUR ALLER PLUS LOIN";
+const BONUS_TEXT = "Une inscription ou un détail t’interpelle ? Écris une question que tu aimerais approfondir en classe.";
+
+const CHAPTERS = [
+  {label:"Chapitre 1", title:"Sur place", emoji:"🚪", color:"#0f6b6b", soft:"#e3f0ed", ring:"rgba(15,107,107,.18)"},
+  {label:"Chapitre 2", title:"Lire la pierre", emoji:"🗿", color:"#a9522e", soft:"#f6e7dd", ring:"rgba(169,82,46,.18)"},
+  {label:"Chapitre 3", title:"Comprendre et se souvenir", emoji:"🕯️", color:"#3f5f9e", soft:"#e7ecf7", ring:"rgba(63,95,158,.18)"},
+  {label:"Chapitre 4", title:"La mémoire vivante", emoji:"🌿", color:"#6f7f3a", soft:"#eef1e0", ring:"rgba(111,127,58,.18)"}
+];
+
+const QUESTIONS = [
+  {id:1, ch:0, icon:"🚪", type:"choice", q:"Étais-tu déjà venu ici ?", options:["Oui","Non"], side:"emoji", art:"🚪"},
+  {id:2, ch:0, icon:"🪖", type:"text", q:"Quelles guerres ou quels conflits sont évoqués par les inscriptions ?", hint:"Repère les dates ou les mots qui t’aident à répondre.", side:"emoji", art:"🪖"},
+  {id:3, ch:1, icon:"🗺️", type:"number", q:"Combien de batailles ou de lieux de combat sont inscrits ?", side:"map"},
+  {id:4, ch:1, icon:"⚔️", type:"phase", q:"Choisis une bataille inscrite. À quelle grande phase de la Première Guerre mondiale la rattaches-tu ?",
+    options:["Guerre de mouvement (1914)","Guerre de position / tranchées (1915-1917)","Retour à la guerre de mouvement (1918)"],
+    fields:[{key:"battle",label:"Bataille choisie"},{key:"dates",label:"Dates"}], side:"emoji", art:"⚔️"},
+  {id:5, ch:1, icon:"📜", type:"text", q:"Observe les noms gravés sur les plaques. Que remarques-tu dans leur présentation ?", hint:"Pense à leur ordre, aux dates ou aux autres mentions visibles.", side:"plaques"},
+  {id:6, ch:1, icon:"🏛️", type:"text", q:"Décris le monument : forme générale, matériaux, architecture et décor.", hint:"Appuie ta description sur au moins deux détails précis.", side:"monument"},
+  {id:7, ch:2, icon:"🧭", type:"text", q:"Quel autre monument ou œuvre commémorative se trouve à proximité ? Décris un indice qui t’a aidé à l’identifier.", side:"emoji", art:"🧭"},
+  {id:8, ch:2, icon:"👥", type:"text", q:"À qui ce monument semble-t-il s’adresser ? Quels indices te le font penser ?", side:"emoji", art:"👥"},
+  {id:9, ch:2, icon:"📖", type:"text", q:"Que peut nous apprendre une liste de noms gravés ? Qu’est-ce qu’elle ne peut pas raconter à elle seule ?", side:"emoji", art:"📖"},
+  {id:10, ch:3, icon:"🕯️", type:"text", q:"Que commémore-t-on le 11 novembre ? Pourquoi organise-t-on une cérémonie ?", side:"emoji", art:"🕯️"},
+  {id:11, ch:3, icon:"🌺", type:"text", q:"Pendant la cérémonie, repère un geste, un objet, une parole ou un symbole. Que signifie-t-il selon toi ?", side:"emoji", art:"🌺"},
+  {id:12, ch:3, icon:"🌿", type:"text", q:"Comment le lieu est-il utilisé aujourd’hui ? Comment la mémoire y est-elle entretenue ?", side:"emoji", art:"🌿"}
+];
+
+/* =========================================================
+   ÉTAT
+   ========================================================= */
+const KEY = "enquete-monument-mtp-v1";
+const MAX_SCORE = QUESTIONS.length * 15 + 30;
+
+let state = {
+  scene: 0,
+  resume: 0,
+  answers: {},
+  drafts: {},
+  hints: {},
+  hintBonus: {},
+  croquis: { data:"", legends:["","",""] },
+  bonus: "",
+  sound: true
+};
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(!raw) return false;
+    const s = JSON.parse(raw);
+    if(!s || typeof s !== "object") return false;
+    state = Object.assign(state, s);
+    state.answers = s.answers || {};
+    state.drafts = s.drafts || {};
+    state.hints = s.hints || {};
+    state.hintBonus = s.hintBonus || {};
+    state.resume = Number(s.resume) || 0;
+    state.croquis = s.croquis || {data:"",legends:["","",""]};
+    if(!Array.isArray(state.croquis.legends)) state.croquis.legends = ["","",""];
+    while(state.croquis.legends.length < 3) state.croquis.legends.push("");
+    state.bonus = s.bonus || "";
+    state.sound = s.sound !== false;
+    return true;
+  }catch(e){ return false; }
+}
+function saveState(){
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
+}
+function resetState(){
+  state = {scene:0, resume:0, answers:{}, drafts:{}, hints:{}, hintBonus:{}, croquis:{data:"",legends:["","",""]}, bonus:"", sound:state.sound};
+  saveState();
+}
+
+/* =========================================================
+   DÉRIVÉS
+   ========================================================= */
+function hasAnswer(q){
+  const a = state.answers[q.id];
+  if(!a) return false;
+  if(q.type === "phase") return !!(a.battle && String(a.battle).trim() && a.phase);
+  return !!(a.value && String(a.value).trim());
+}
+function croquisDone(){
+  return !!(state.croquis.data && state.croquis.legends.filter(l=>l && l.trim()).length >= 3);
+}
+function bonusDone(){ return !!state.bonus.trim(); }
+function answeredCount(){
+  let n = QUESTIONS.filter(hasAnswer).length;
+  if(croquisDone()) n++;
+  if(bonusDone()) n++;
+  return n;
+}
+const TOTAL_STEPS = QUESTIONS.length + 2;
+
+function score(){
+  let s = 0;
+  QUESTIONS.forEach(q=>{
+    if(hasAnswer(q)){
+      s += 10;
+      const bonus = (q.id in state.hintBonus) ? state.hintBonus[q.id] : !state.hints[q.id];
+      if(bonus) s += 5;
+    }
+  });
+  if(croquisDone()) s += 20;
+  if(bonusDone()) s += 10;
+  return s;
+}
+function rank(){
+  const s = score();
+  if(s >= 200) return {name:"Gardien de la mémoire", line:"Tu as mené l’enquête de bout en bout : bravo !", stars:"★★★★★"};
+  if(s >= 150) return {name:"Historien en herbe", line:"Belle enquête ! Tes observations sont précises.", stars:"★★★★☆"};
+  if(s >= 90) return {name:"Enquêteur du patrimoine", line:"Tu as réuni de sérieux indices. Continue !", stars:"★★★☆☆"};
+  return {name:"Apprenti enquêteur", line:"L’enquête ne fait que commencer : reviens sur tes pas.", stars:"★★☆☆☆"};
+}
+
+/* =========================================================
+   SCÈNES
+   ========================================================= */
+const SCENES = [{type:"intro"},{type:"brief"}];
+let lastCh = -1;
+QUESTIONS.forEach(q=>{
+  if(q.ch !== lastCh){ SCENES.push({type:"chapter", ch:q.ch}); lastCh = q.ch; }
+  SCENES.push({type:"q", q});
+});
+SCENES.push({type:"draw"});
+SCENES.push({type:"bonus"});
+SCENES.push({type:"final"});
+
+/* =========================================================
+   ILLUSTRATIONS SVG
+   ========================================================= */
+function svgMonument(){
+  return `
+  <svg class="side-svg" viewBox="0 0 420 400" role="img" aria-label="Silhouette du monument aux morts">
+    <defs>
+      <linearGradient id="stone" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#f7f2e7"/><stop offset="1" stop-color="#cfc4ae"/>
+      </linearGradient>
+      <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#f8e9c9"/><stop offset="1" stop-color="#ecd6b1"/>
+      </linearGradient>
+    </defs>
+    <circle cx="210" cy="180" r="160" fill="url(#sky2)"/>
+    <circle cx="322" cy="82" r="30" fill="#e9b949" opacity=".8"/>
+    <path d="M40 330 Q130 282 210 318 T392 306 L392 380 L40 380 Z" fill="#9db9a6" opacity=".6"/>
+    <rect x="112" y="330" width="196" height="16" rx="4" fill="#b7ad9a"/>
+    <rect x="124" y="312" width="172" height="20" rx="4" fill="url(#stone)"/>
+    <rect x="140" y="294" width="140" height="20" rx="4" fill="url(#stone)"/>
+    <rect x="166" y="214" width="88" height="82" rx="5" fill="url(#stone)"/>
+    <polygon points="210,66 242,214 178,214" fill="url(#stone)"/>
+    <polygon points="210,66 242,214 210,214" fill="#000" opacity=".06"/>
+    <circle cx="210" cy="254" r="21" fill="none" stroke="#7f9a6a" stroke-width="7" stroke-dasharray="4 5"/>
+    <g fill="#d94f45">
+      <circle cx="158" cy="324" r="7"/><circle cx="169" cy="317" r="6"/>
+      <circle cx="252" cy="319" r="7"/><circle cx="263" cy="325" r="6"/>
+    </g>
+    <g fill="#3f6b4f">
+      <rect x="164" y="325" width="3" height="17" rx="1"/><rect x="257" y="326" width="3" height="16" rx="1"/>
+    </g>
+    <path d="M86 118 q10 -8 20 0 q10 -8 20 0" stroke="#5d7a72" fill="none" stroke-width="3" stroke-linecap="round"/>
+    <path d="M296 158 q8 -6 16 0 q8 -6 16 0" stroke="#5d7a72" fill="none" stroke-width="3" stroke-linecap="round"/>
+    <g opacity=".5" fill="#c9a25c">
+      <circle cx="64" cy="250" r="3"/><circle cx="352" cy="236" r="3"/><circle cx="330" cy="300" r="3"/>
+    </g>
+  </svg>`;
+}
+
+function svgMap(){
+  return `
+  <svg class="side-svg" viewBox="0 0 420 320" role="img" aria-label="Carte stylisée des fronts nord et nord-est">
+    <rect width="420" height="320" rx="22" fill="#d9ecef"/>
+    <path d="M46 46 L372 34 L398 118 L356 196 L376 292 L126 302 L58 216 Z" fill="#efe3c8" stroke="#c9b992" stroke-width="2"/>
+    <path d="M78 150 C130 122 188 154 244 112 C296 74 330 96 368 74" stroke="#d94f45" stroke-width="5" stroke-dasharray="11 8" fill="none" stroke-linecap="round"/>
+    <path d="M96 214 C150 190 214 216 268 178 C312 148 346 162 372 146" stroke="#b4552f" stroke-width="4" stroke-dasharray="4 7" fill="none" stroke-linecap="round"/>
+    <g fill="#8a3a32" font-family="'Trebuchet MS',sans-serif" font-size="12" font-weight="bold">
+      <text x="60" y="250">FRONT NORD</text>
+      <text x="228" y="62">FRONT NORD-EST</text>
+    </g>
+    <g transform="translate(352,252)">
+      <circle r="26" fill="#fff" opacity=".85"/>
+      <path d="M0 -18 L6 2 L0 -2 L-6 2 Z" fill="#0f6b6b"/>
+      <path d="M0 18 L6 2 L0 6 L-6 2 Z" fill="#9fb6ad"/>
+      <text x="0" y="-30" text-anchor="middle" font-size="11" font-weight="bold" fill="#0f6b6b">N</text>
+    </g>
+    <g fill="#d94f45" opacity=".9">
+      <circle cx="150" cy="138" r="5"/><circle cx="236" cy="112" r="5"/><circle cx="306" cy="96" r="5"/>
+    </g>
+    <g fill="#5d7a72" opacity=".65" font-size="10" font-family="'Trebuchet MS',sans-serif">
+      <text x="300" y="300">MER</text>
+    </g>
+  </svg>`;
+}
+
+function svgPlaques(){
+  return `
+  <svg class="side-svg" viewBox="0 0 420 340" role="img" aria-label="Plaques de noms gravés">
+    <rect width="420" height="340" rx="22" fill="#e9dcc3"/>
+    <rect x="28" y="26" width="364" height="288" rx="12" fill="#cfc3a9" stroke="#b3a58a" stroke-width="3"/>
+    <rect x="44" y="42" width="156" height="256" rx="8" fill="#b9ab90"/>
+    <rect x="220" y="42" width="156" height="256" rx="8" fill="#b9ab90"/>
+    <g stroke="#8d7f65" stroke-width="3" stroke-linecap="round" opacity=".8">
+      ${Array.from({length:11}).map((_,i)=>`<line x1="58" y1="${66+i*20}" x2="${118+((i*37)%64)}" y2="${66+i*20}"/>`).join("")}
+      ${Array.from({length:11}).map((_,i)=>`<line x1="234" y1="${66+i*20}" x2="${294+((i*29)%62)}" y2="${66+i*20}"/>`).join("")}
+    </g>
+    <g fill="#6f6249" font-family="'Trebuchet MS',sans-serif" font-size="9" opacity=".75">
+      <text x="60" y="300">1914 — 1918</text>
+      <text x="240" y="300">1914 — 1918</text>
+    </g>
+    <circle cx="210" cy="170" r="16" fill="#d94f45" opacity=".9"/>
+    <circle cx="210" cy="170" r="6" fill="#f5d76e"/>
+  </svg>`;
+}
+
+function sideArt(kind, art){
+  if(kind === "map") return svgMap();
+  if(kind === "plaques") return svgPlaques();
+  if(kind === "monument") return svgMonument();
+  return `<div class="side-emoji" aria-hidden="true">${art || "🔎"}</div>`;
+}
+
+/* =========================================================
+   SONS
+   ========================================================= */
+let AC = null;
+function audio(){
+  if(!AC){
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if(!Ctx) return null;
+    AC = new Ctx();
+  }
+  if(AC.state === "suspended") AC.resume();
+  return AC;
+}
+function sfx(kind){
+  if(!state.sound) return;
+  const ctx = audio(); if(!ctx) return;
+  const seqs = {
+    click:[440],
+    good:[523,659,784],
+    stamp:[392,523],
+    final:[523,659,784,1047],
+    bad:[196]
+  };
+  const notes = seqs[kind] || seqs.click;
+  const t0 = ctx.currentTime + .01;
+  notes.forEach((f,i)=>{
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = kind === "bad" ? "triangle" : "sine";
+    o.frequency.value = f;
+    const t = t0 + i*.09;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(.16,t+.02);
+    g.gain.exponentialRampToValueAtTime(.001,t+.32);
+    o.connect(g).connect(ctx.destination);
+    o.start(t); o.stop(t+.34);
+  });
+}
+
+/* =========================================================
+   UTILS
+   ========================================================= */
+const $ = (sel, root=document) => root.querySelector(sel);
+const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+let toastTimer;
+function toast(msg){
+  const el = $("#toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove("show"), 2200);
+}
+function accentVars(ch){
+  const c = CHAPTERS[ch] || CHAPTERS[0];
+  return `--accent:${c.color};--accent-soft:${c.soft};--accent-ring:${c.ring};`;
+}
+
+/* =========================================================
+   HUD
+   ========================================================= */
+function updateHUD(){
+  const n = answeredCount();
+  $("#progFill").style.width = (n / TOTAL_STEPS * 100) + "%";
+  $("#progText").textContent = n + " / " + TOTAL_STEPS;
+  $("#scoreVal").textContent = score();
+  $("#btnSound").textContent = state.sound ? "🔊" : "🔇";
+  const sc = $("#scoreChip");
+  sc.classList.remove("bump"); void sc.offsetWidth; sc.classList.add("bump");
+}
+function showHUD(v){
+  $("#topbar").classList.toggle("hidden", !v);
+  $("#stage").classList.toggle("center", v ? false : true);
+}
+
+/* =========================================================
+   RENDU
+   ========================================================= */
+let pendingChoice = null;
+let advancing = false;
+
+function render(){
+  const step = SCENES[state.scene];
+  if(!step) return;
+  advancing = false;
+  pendingChoice = null;
+  if(step.type !== "intro") state.resume = state.scene;
+  showHUD(step.type !== "intro");
+  updateHUD();
+
+  if(step.type === "intro") renderIntro();
+  else if(step.type === "brief") renderBrief();
+  else if(step.type === "chapter") renderChapter(step.ch);
+  else if(step.type === "q") renderQuestion(step.q);
+  else if(step.type === "draw") renderDraw();
+  else if(step.type === "bonus") renderBonus();
+  else if(step.type === "final") renderFinal();
+
+  // remonter en haut de scène
+  $("#stage").scrollTop = 0;
+  saveState();
+}
+
+function renderIntro(){
+  const saved = answeredCount() > 0;
+  const total = QUESTIONS.length;
+  $("#stage").innerHTML = `
+  <section class="scene">
+    <div class="card intro-card">
+      <div class="intro-left">
+        <span class="kicker">🔎 Enquête interactive</span>
+        <h1>Le monument aux morts <span class="accent">de Montpellier</span></h1>
+        <p class="subtitle">matériaux, gestes et symboles.</p>
+        <div class="intro-note">
+          <span class="em">🧭</span>
+          <span>${esc(INTRO_LINE)}</span>
+        </div>
+        <div class="intro-actions">
+          <button class="btn btn-primary" id="startBtn">Commencer l’enquête <span class="arr">→</span></button>
+          ${saved ? `<button class="btn btn-ghost" id="resumeBtn">Reprendre</button>` : ""}
+        </div>
+        <div class="intro-meta">
+          <span>📍 Sur le terrain</span>
+          <span>🕵️ ${total} indices à collecter</span>
+          <span>📓 Carnet d’enquête</span>
+        </div>
+      </div>
+      <div class="intro-art">
+        <div class="float-badge fb1">🕵️ Mission patrimoine</div>
+        ${svgMonument()}
+        <div class="float-badge fb2">🌺 Se souvenir</div>
+      </div>
+    </div>
+  </section>`;
+
+  $("#startBtn").addEventListener("click", ()=>{
+    sfx("click");
+    if(saved && !confirm("Commencer une nouvelle enquête ? Tes réponses actuelles seront effacées.")){
+      return;
+    }
+    if(saved) resetState();
+    state.scene = 1; render();
+  });
+  if(saved){
+    $("#resumeBtn").addEventListener("click", ()=>{
+      sfx("click");
+      const last = Math.min(state.resume || 1, SCENES.length - 1);
+      state.scene = last || 1;
+      render();
+    });
+  }
+}
+
+function renderBrief(){
+  $("#stage").innerHTML = `
+  <section class="scene" style="${accentVars(0)}">
+    <div class="card brief">
+      <span class="kicker">Le briefing</span>
+      <h2>Ta mission, si tu l’acceptes</h2>
+      <p class="lead">${esc(INTRO_LINE)}</p>
+      <div class="brief-grid">
+        <div class="brief-item">
+          <div class="num">1</div>
+          <div><h3>Observe</h3><p>Prends le temps de regarder le monument et tout ce qui l’entoure.</p></div>
+        </div>
+        <div class="brief-item">
+          <div class="num">2</div>
+          <div><h3>Note</h3><p>Inscriptions, formes, matériaux, gestes et symboles : rien ne doit t’échapper.</p></div>
+        </div>
+        <div class="brief-item">
+          <div class="num">3</div>
+          <div><h3>Raconte</h3><p>Réponds aux questions et remplis ton carnet d’enquête au fil du parcours.</p></div>
+        </div>
+      </div>
+      <div class="howto">
+        <span>👆 Touche pour choisir</span>
+        <span>💡 Un indice est caché</span>
+        <span>🖐️ Balaye pour avancer</span>
+        <span>⭐ Gagne des points</span>
+      </div>
+      <div class="q-actions">
+        <button class="btn btn-primary" id="goBtn">Entrer dans l’enquête <span class="arr">→</span></button>
+        <button class="btn btn-ghost" id="backBtn">← Accueil</button>
+      </div>
+    </div>
+  </section>`;
+  $("#goBtn").addEventListener("click", ()=>{ sfx("click"); state.scene++; render(); });
+  $("#backBtn").addEventListener("click", ()=>{ sfx("click"); state.scene = 0; render(); });
+}
+
+function renderChapter(ch){
+  const c = CHAPTERS[ch];
+  const count = QUESTIONS.filter(q=>q.ch === ch).length;
+  $("#stage").innerHTML = `
+  <section class="scene" style="${accentVars(ch)}">
+    <div class="card chapter-card">
+      <div class="chapter-big">0${ch+1}</div>
+      <h2>${esc(c.title)}</h2>
+      <p>${count} indices à collecter</p>
+      <button class="btn btn-white" id="chapterGo">Continuer <span class="arr">→</span></button>
+      <div class="chapter-art">${c.emoji}</div>
+    </div>
+  </section>`;
+  $("#chapterGo").addEventListener("click", ()=>{ sfx("click"); state.scene++; render(); });
+}
+
+function renderQuestion(q){
+  const c = CHAPTERS[q.ch];
+  const done = hasAnswer(q);
+  const a = state.answers[q.id] || state.drafts[q.id];
+  const hintShown = !!state.hints[q.id];
+  const side = sideArt(q.side, q.art);
+
+  let answerHTML = "";
+  if(q.type === "choice"){
+    answerHTML = `<div class="options two">
+      ${q.options.map(o=>`<button class="opt ${a && a.value === o ? "selected" : ""}" data-opt="${esc(o)}">
+        <span class="mark"></span><span>${esc(o)}</span></button>`).join("")}
+    </div>`;
+  } else if(q.type === "text"){
+    answerHTML = `<textarea class="answer-box" id="ansBox" placeholder="Écris ta réponse ici…" rows="4">${a ? esc(a.value) : ""}</textarea>`;
+  } else if(q.type === "number"){
+    answerHTML = `<div class="number-wrap">
+      <input id="numBox" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="${a ? esc(a.value) : ""}" aria-label="Nombre de batailles ou de lieux de combat">
+      <span class="unit">batailles ou lieux de combat</span>
+    </div>`;
+  } else if(q.type === "phase"){
+    answerHTML = `
+      <div class="options">
+        ${q.options.map(o=>`<button class="opt phase ${a && a.phase === o ? "selected" : ""}" data-phase="${esc(o)}">
+          <span class="mark"></span><span>${esc(o)}</span></button>`).join("")}
+      </div>
+      <div class="field-row two">
+        <div class="field"><label for="battleBox">${esc(q.fields[0].label)}</label>
+          <input id="battleBox" type="text" value="${a && a.battle ? esc(a.battle) : ""}" placeholder="Nom de la bataille"></div>
+        <div class="field"><label for="datesBox">${esc(q.fields[1].label)}</label>
+          <input id="datesBox" type="text" value="${a && a.dates ? esc(a.dates) : ""}" placeholder="ex. 1916"></div>
+      </div>`;
+  }
+
+  $("#stage").innerHTML = `
+  <section class="scene" style="${accentVars(q.ch)}">
+    <div class="card q-card">
+      <div class="q-ribbon"></div>
+      <div class="q-layout">
+        <div class="q-main">
+          <div class="q-head">
+            <span class="q-chip">${esc(c.label)} · Indice ${String(q.id).padStart(2,"0")}</span>
+            <div class="q-icon" aria-hidden="true">${q.icon}</div>
+            ${done ? `<span class="saved-flag">✓ collecté</span>` : ""}
+          </div>
+          <h2 class="q-text"><span class="q-n">${String(q.id).padStart(2,"0")}.</span> ${esc(q.q)}</h2>
+          ${q.hint ? `<button class="q-hint-btn" id="hintBtn">🔍 ${hintShown ? "Masquer l’indice" : "Besoin d’un indice ?"}</button>
+          <div class="q-hint ${hintShown ? "show" : ""}" id="hintBox">${esc(q.hint)}</div>` : ""}
+          <div class="answer">${answerHTML}</div>
+          <div class="q-actions">
+            <button class="btn btn-ghost" id="prevBtn">← Précédent</button>
+            <div class="spacer"></div>
+            ${!done ? `<button class="btn btn-ghost" id="skipBtn">Passer</button>` : ""}
+            <button class="btn btn-primary" id="nextBtn">${done ? "Indice suivant" : "Valider l’indice"} <span class="arr">→</span></button>
+          </div>
+          ${q.type === "phase" ? `<p class="mini-note">Renseigne la bataille choisie et sa phase, puis valide.</p>` : ""}
+        </div>
+        <div class="q-side">${side}</div>
+      </div>
+    </div>
+  </section>`;
+
+  // interactions
+  if(q.hint){
+    $("#hintBtn").addEventListener("click", ()=>{
+      captureDraft(q);
+      state.hints[q.id] = !state.hints[q.id];
+      saveState();
+      sfx("click");
+      renderQuestion(q);
+      updateHUD();
+    });
+  }
+
+  if(q.type === "choice"){
+    $$(".opt").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        if(advancing) return;
+        pendingChoice = btn.dataset.opt;
+        $$(".opt").forEach(b=>b.classList.toggle("selected", b === btn));
+        sfx("click");
+        setTimeout(()=>collect(q), 380);
+      });
+    });
+  }
+
+  if(q.type === "phase"){
+    $$(".opt.phase").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        $$(".opt.phase").forEach(b=>b.classList.toggle("selected", b === btn));
+        pendingChoice = btn.dataset.phase;
+        captureDraft(q);
+        saveState();
+        sfx("click");
+      });
+    });
+  }
+
+  // Sauvegarde du brouillon en cours de saisie
+  $$("#ansBox, #numBox, #battleBox, #datesBox").forEach(el=>{
+    el.addEventListener("input", ()=>{ captureDraft(q); saveState(); });
+  });
+
+  $("#prevBtn").addEventListener("click", ()=>{ sfx("click"); goScene(state.scene - 1); });
+
+  const nextBtn = $("#nextBtn");
+  nextBtn.addEventListener("click", ()=>{
+    if(done){
+      const v = readAnswer(q);
+      if(v){ state.answers[q.id] = v; delete state.drafts[q.id]; saveState(); updateHUD(); }
+      sfx("click");
+      goScene(state.scene + 1);
+      return;
+    }
+    collect(q);
+  });
+
+  const skip = $("#skipBtn");
+  if(skip){
+    skip.addEventListener("click", ()=>{
+      sfx("click");
+      goScene(state.scene + 1);
+    });
+  }
+
+  // Entrée / Ctrl+Entrée pour valider
+  $$("#ansBox, #numBox, #battleBox, #datesBox").forEach(el=>{
+    el.addEventListener("keydown", e=>{
+      if(e.key === "Enter" && (q.type !== "text" || e.ctrlKey || e.metaKey)){
+        e.preventDefault();
+        if(!done) collect(q);
+      }
+    });
+  });
+}
+
+function readAnswer(q){
+  if(q.type === "choice"){
+    const sel = $(".opt.selected");
+    return sel ? { value: sel.dataset.opt } : null;
+  }
+  if(q.type === "text"){
+    const v = ($("#ansBox").value || "").trim();
+    return v ? { value: v } : null;
+  }
+  if(q.type === "number"){
+    const v = ($("#numBox").value || "").trim();
+    return v ? { value: v } : null;
+  }
+  if(q.type === "phase"){
+    const battle = ($("#battleBox").value || "").trim();
+    const dates = ($("#datesBox").value || "").trim();
+    const sel = $(".opt.phase.selected");
+    const phase = sel ? sel.dataset.phase : (pendingChoice || "");
+    if(!battle || !phase) return null;
+    return { battle, dates, phase };
+  }
+  return null;
+}
+
+function captureDraft(q){
+  if(q.type === "text"){
+    const el = $("#ansBox"); if(!el) return;
+    state.drafts[q.id] = { value: el.value };
+  } else if(q.type === "number"){
+    const el = $("#numBox"); if(!el) return;
+    state.drafts[q.id] = { value: el.value };
+  } else if(q.type === "phase"){
+    const b = $("#battleBox"), d = $("#datesBox");
+    const sel = $(".opt.phase.selected");
+    const prev = state.drafts[q.id] || {};
+    state.drafts[q.id] = {
+      battle: b ? b.value : (prev.battle || ""),
+      dates: d ? d.value : (prev.dates || ""),
+      phase: sel ? sel.dataset.phase : (prev.phase || "")
+    };
+  }
+}
+
+function collect(q){
+  if(advancing) return;
+  const val = readAnswer(q);
+  if(!val){
+    sfx("bad");
+    const card = $(".q-card");
+    card.classList.remove("shake"); void card.offsetWidth; card.classList.add("shake");
+    toast(q.type === "phase" ? "Choisis une bataille et une phase." : "Écris ou choisis une réponse avant de valider.");
+    return;
+  }
+  const wasDone = hasAnswer(q);
+  if(!wasDone) state.hintBonus[q.id] = !state.hints[q.id];
+  state.answers[q.id] = val;
+  delete state.drafts[q.id];
+  saveState();
+  updateHUD();
+
+  if(!wasDone){
+    advancing = true;
+    sfx("good");
+    stampPop(q.icon, "Indice collecté", "+10 pts", CHAPTERS[q.ch].color);
+    setTimeout(()=>{ goScene(state.scene + 1); }, 900);
+  } else {
+    goScene(state.scene + 1);
+  }
+}
+
+function stampPop(icon, label, pts, color){
+  const el = document.createElement("div");
+  el.className = "stamp-pop";
+  el.innerHTML = `<div class="disc" style="--accent:${color || CHAPTERS[0].color}">
+    <div><div class="big">${icon}</div><div class="lbl">${esc(label)}</div><div class="pts">${esc(pts)}</div></div>
+  </div>`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 1100);
+}
+
+function goScene(i){
+  if(i < 0 || i >= SCENES.length) return;
+  state.scene = i;
+  render();
+}
+
+/* =========================================================
+   CROQUIS
+   ========================================================= */
+function renderDraw(){
+  const c = CHAPTERS[1];
+  const hasDrawing = !!state.croquis.data;
+  $("#stage").innerHTML = `
+  <section class="scene" style="${accentVars(1)}">
+    <div class="card q-card">
+      <div class="q-ribbon"></div>
+      <div class="draw-wrap">
+        <div class="q-head">
+          <span class="q-chip">Dernière étape · Carnet</span>
+          <div class="q-icon">🎨</div>
+        </div>
+        <h2 class="q-text">${esc(CROQUIS_TITLE)}</h2>
+        <p class="lead" style="font-size:17px;color:var(--ink-soft);margin:0 0 16px;line-height:1.5">${esc(CROQUIS_TEXT)}</p>
+        <div class="draw-grid">
+          <div>
+            <div class="canvas-shell">
+              <canvas id="sketch" width="1000" height="680" aria-label="Zone de dessin du monument"></canvas>
+            </div>
+            <div class="tools">
+              <button class="swatch active" data-color="#122b33" style="background:#122b33" aria-label="Noir"></button>
+              <button class="swatch" data-color="#d94f45" style="background:#d94f45" aria-label="Rouge"></button>
+              <button class="swatch" data-color="#0f6b6b" style="background:#0f6b6b" aria-label="Bleu-vert"></button>
+              <button class="swatch" data-color="#e9b949" style="background:#e9b949" aria-label="Jaune"></button>
+              <button class="swatch" data-color="#7f9a6a" style="background:#7f9a6a" aria-label="Vert"></button>
+              <button class="tool-btn" id="eraserBtn">Gomme</button>
+              <button class="tool-btn" id="clearBtn">Effacer</button>
+            </div>
+          </div>
+          <div>
+            <div class="legends">
+              ${[0,1,2].map(i=>`<div class="legend-row">
+                <span class="legend-num">${i+1}</span>
+                <input type="text" data-legend="${i}" value="${esc(state.croquis.legends[i] || "")}" placeholder="Légende ${i+1}">
+              </div>`).join("")}
+            </div>
+            <p class="mini-note">Dessine avec le doigt ou le stylet, puis complète les trois légendes.</p>
+          </div>
+        </div>
+        <div class="q-actions">
+          <button class="btn btn-ghost" id="prevBtn">← Précédent</button>
+          <div class="spacer"></div>
+          <button class="btn btn-ghost" id="skipBtn">Passer</button>
+          <button class="btn btn-primary" id="nextBtn">Valider mon croquis <span class="arr">→</span></button>
+        </div>
+      </div>
+    </div>
+  </section>`;
+
+  const canvas = $("#sketch");
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.lineWidth = 5;
+  ctx.strokeStyle = "#122b33";
+
+  if(state.croquis.data){
+    const img = new Image();
+    img.onload = ()=>ctx.drawImage(img,0,0,canvas.width,canvas.height);
+    img.src = state.croquis.data;
+  }
+
+  let drawing = false;
+  let last = null;
+  let erased = false;
+
+  function pos(e){
+    const r = canvas.getBoundingClientRect();
+    return {
+      x: (e.clientX - r.left) * (canvas.width / r.width),
+      y: (e.clientY - r.top) * (canvas.height / r.height)
+    };
+  }
+  function start(e){
+    e.preventDefault();
+    drawing = true;
+    last = pos(e);
+    canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
+    ctx.beginPath();
+    ctx.arc(last.x, last.y, ctx.lineWidth/2, 0, Math.PI*2);
+    ctx.fillStyle = erased ? "#fff" : ctx.strokeStyle;
+    ctx.fill();
+  }
+  function move(e){
+    if(!drawing) return;
+    e.preventDefault();
+    const p = pos(e);
+    ctx.beginPath();
+    ctx.moveTo(last.x, last.y);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    last = p;
+  }
+  function end(){
+    if(!drawing) return;
+    drawing = false;
+    persistDrawing();
+  }
+  canvas.addEventListener("pointerdown", start);
+  canvas.addEventListener("pointermove", move);
+  canvas.addEventListener("pointerup", end);
+  canvas.addEventListener("pointercancel", end);
+  canvas.addEventListener("pointerleave", end);
+
+  function persistDrawing(){
+    state.croquis.data = canvas.toDataURL("image/png");
+    saveState();
+  }
+
+  $$(".swatch").forEach(sw=>{
+    sw.addEventListener("click", ()=>{
+      $$(".swatch").forEach(s=>s.classList.remove("active"));
+      sw.classList.add("active");
+      erased = false;
+      ctx.strokeStyle = sw.dataset.color;
+      ctx.lineWidth = 5;
+      sfx("click");
+    });
+  });
+  $("#eraserBtn").addEventListener("click", ()=>{
+    erased = true;
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 22;
+    $$(".swatch").forEach(s=>s.classList.remove("active"));
+    sfx("click");
+  });
+  $("#clearBtn").addEventListener("click", ()=>{
+    if(!confirm("Effacer tout le dessin ?")) return;
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    state.croquis.data = "";
+    saveState();
+    sfx("click");
+  });
+
+  $$("input[data-legend]").forEach(inp=>{
+    inp.addEventListener("input", ()=>{
+      state.croquis.legends[Number(inp.dataset.legend)] = inp.value;
+      saveState();
+    });
+  });
+
+  $("#prevBtn").addEventListener("click", ()=>{ sfx("click"); goScene(state.scene - 1); });
+  $("#skipBtn").addEventListener("click", ()=>{ sfx("click"); goScene(state.scene + 1); });
+  $("#nextBtn").addEventListener("click", ()=>{
+    if(!state.croquis.data && !hasDrawing){
+      toast("Dessine d’abord le monument.");
+      return;
+    }
+    const legs = $$("input[data-legend]").map(i=>i.value.trim());
+    state.croquis.legends = legs;
+    if(legs.filter(Boolean).length < 3){
+      toast("Complète les trois légendes.");
+      return;
+    }
+    saveState();
+    sfx("good");
+    stampPop("🎨", "Croquis terminé", "+20 pts", CHAPTERS[1].color);
+    setTimeout(()=>goScene(state.scene + 1), 900);
+  });
+}
+
+/* =========================================================
+   BONUS
+   ========================================================= */
+function renderBonus(){
+  $("#stage").innerHTML = `
+  <section class="scene" style="${accentVars(3)}">
+    <div class="card q-card">
+      <div class="q-ribbon"></div>
+      <div class="q-layout">
+        <div class="q-main">
+          <div class="q-head">
+            <span class="q-chip">Bonus · Curiosité</span>
+            <div class="q-icon">💡</div>
+          </div>
+          <h2 class="q-text">${esc(BONUS_TITLE)}</h2>
+          <p style="font-size:17px;line-height:1.5;color:var(--ink-soft);margin:0 0 16px">${esc(BONUS_TEXT)}</p>
+          <textarea class="answer-box" id="bonusBox" rows="5" placeholder="Écris ta question ici…">${esc(state.bonus)}</textarea>
+          <div class="q-actions">
+            <button class="btn btn-ghost" id="prevBtn">← Précédent</button>
+            <div class="spacer"></div>
+            <button class="btn btn-ghost" id="skipBtn">Passer</button>
+            <button class="btn btn-primary" id="nextBtn">Voir mon carnet <span class="arr">→</span></button>
+          </div>
+        </div>
+        <div class="q-side">${sideArt("emoji","💡")}</div>
+      </div>
+    </div>
+  </section>`;
+
+  $("#bonusBox").addEventListener("input", e=>{
+    state.bonus = e.target.value;
+    saveState();
+  });
+  $("#prevBtn").addEventListener("click", ()=>{ sfx("click"); goScene(state.scene - 1); });
+  $("#skipBtn").addEventListener("click", ()=>{ sfx("click"); goScene(state.scene + 1); });
+  $("#nextBtn").addEventListener("click", ()=>{
+    state.bonus = $("#bonusBox").value;
+    saveState();
+    sfx("click");
+    goScene(state.scene + 1);
+  });
+}
+
+/* =========================================================
+   FINAL
+   ========================================================= */
+function answerText(q){
+  const a = state.answers[q.id];
+  if(!a) return "";
+  if(q.type === "phase"){
+    let t = "Bataille choisie : " + a.battle;
+    if(a.dates) t += " · Dates : " + a.dates;
+    t += "\nPhase : " + a.phase;
+    return t;
+  }
+  return a.value;
+}
+
+function renderFinal(){
+  const s = score();
+  const r = rank();
+  const pct = Math.round(s / MAX_SCORE * 100);
+  const allStamps = QUESTIONS.map(q=>({icon:q.icon, on:hasAnswer(q)}))
+    .concat([{icon:"🎨", on:croquisDone()},{icon:"💡", on:bonusDone()}]);
+
+  let recap = "";
+  CHAPTERS.forEach((c, ci)=>{
+    const qs = QUESTIONS.filter(q=>q.ch === ci);
+    recap += `<div class="recap-chapter" style="${accentVars(ci)}"><span class="dot"></span><h4>${esc(c.title)}</h4></div>`;
+    qs.forEach(q=>{
+      const txt = answerText(q);
+      recap += `<div class="recap-item">
+        <div class="recap-q">${String(q.id).padStart(2,"0")}. ${esc(q.q)}</div>
+        <div class="recap-a ${txt ? "" : "empty"}">${txt ? esc(txt) : "Pas encore de réponse."}</div>
+      </div>`;
+    });
+  });
+
+  recap += `<div class="recap-chapter" style="${accentVars(1)}"><span class="dot"></span><h4>${esc(CROQUIS_TITLE)}</h4></div>
+    <div class="recap-croquis">
+      ${state.croquis.data ? `<img src="${state.croquis.data}" alt="Croquis du monument">` : `<div class="recap-a empty">Pas encore de croquis.</div>`}
+      <div class="legs">
+        ${state.croquis.legends.map((l,i)=>`<div><strong>${i+1}.</strong> ${esc(l || "—")}</div>`).join("")}
+      </div>
+    </div>
+    <div class="recap-chapter" style="${accentVars(3)}"><span class="dot"></span><h4>${esc(BONUS_TITLE)}</h4></div>
+    <div class="recap-item">
+      <div class="recap-q">${esc(BONUS_TEXT)}</div>
+      <div class="recap-a ${state.bonus.trim() ? "" : "empty"}">${state.bonus.trim() ? esc(state.bonus) : "Pas encore de question."}</div>
+    </div>`;
+
+  $("#stage").innerHTML = `
+  <section class="scene" style="${accentVars(0)}">
+    <div class="card final-card">
+      <div class="final-head">
+        <span class="kicker">📓 Carnet d’enquête</span>
+        <h2>Le monument aux morts de Montpellier</h2>
+        <p>matériaux, gestes et symboles.</p>
+      </div>
+      <div class="final-body">
+        <div class="score-hero">
+          <div class="score-ring" style="--p:${pct}">
+            <div class="score-inner">
+              <div class="val">${s}</div>
+              <div class="max">/ ${MAX_SCORE} POINTS</div>
+            </div>
+          </div>
+          <div class="rank-box">
+            <h3>${esc(r.name)}</h3>
+            <p>${esc(r.line)}</p>
+            <div class="stamp-board">
+              ${allStamps.map(st=>`<div class="stamp ${st.on ? "on" : ""}" title="${st.on ? "Indice collecté" : "À découvrir"}">${st.icon}</div>`).join("")}
+            </div>
+          </div>
+        </div>
+
+        <div class="recap">${recap}</div>
+
+        <div class="final-actions">
+          <button class="btn btn-primary" id="printBtn">🖨️ Imprimer / PDF</button>
+          <button class="btn btn-gold" id="downloadBtn">⬇️ Télécharger mes réponses</button>
+          <button class="btn btn-ghost" id="reviewBtn">← Revenir aux questions</button>
+          <button class="btn btn-ghost" id="restartBtn">Recommencer</button>
+        </div>
+        <p class="mini-note">Astuce iPad : ajoute cette page à l’écran d’accueil pour retrouver ton carnet en plein écran.</p>
+      </div>
+    </div>
+  </section>`;
+
+  $("#printBtn").addEventListener("click", ()=>{ sfx("click"); printCarnet(); });
+  $("#downloadBtn").addEventListener("click", ()=>{ sfx("click"); downloadCarnet(); });
+  $("#reviewBtn").addEventListener("click", ()=>{ sfx("click"); goScene(SCENES.findIndex(x=>x.type === "chapter")); });
+  $("#restartBtn").addEventListener("click", ()=>{
+    if(!confirm("Recommencer une nouvelle enquête ? Toutes les réponses seront effacées.")) return;
+    resetState(); state.scene = 0; render();
+  });
+
+  if(answeredCount() >= 10) setTimeout(()=>confetti(), 350);
+}
+
+function buildPrintHTML(){
+  let html = `<h1>Le monument aux morts de Montpellier</h1>
+  <p class="sub">matériaux, gestes et symboles. — Carnet d’enquête</p>
+  <p class="score">Score : ${score()} / ${MAX_SCORE} — ${esc(rank().name)}</p>`;
+  CHAPTERS.forEach((c, ci)=>{
+    html += `<h2>${esc(c.title)}</h2>`;
+    QUESTIONS.filter(q=>q.ch === ci).forEach(q=>{
+      html += `<div class="item"><p class="q">${String(q.id).padStart(2,"0")}. ${esc(q.q)}</p>
+        <p class="a">${esc(answerText(q) || "—")}</p></div>`;
+    });
+  });
+  html += `<h2>${esc(CROQUIS_TITLE)}</h2>
+    <p class="q">${esc(CROQUIS_TEXT)}</p>`;
+  if(state.croquis.data) html += `<img src="${state.croquis.data}" alt="Croquis">`;
+  html += `<div class="legs">${state.croquis.legends.map((l,i)=>`<div><strong>${i+1}.</strong> ${esc(l || "—")}</div>`).join("")}</div>`;
+  html += `<h2>${esc(BONUS_TITLE)}</h2><p class="q">${esc(BONUS_TEXT)}</p>
+    <p class="a">${esc(state.bonus || "—")}</p>`;
+  return html;
+}
+
+function printCarnet(){
+  $("#printArea").innerHTML = buildPrintHTML();
+  setTimeout(()=>window.print(), 120);
+}
+
+function downloadCarnet(){
+  const lines = [];
+  lines.push("LE MONUMENT AUX MORTS DE MONTPELLIER");
+  lines.push("matériaux, gestes et symboles.");
+  lines.push("Score : " + score() + " / " + MAX_SCORE + " — " + rank().name);
+  lines.push("");
+  CHAPTERS.forEach((c, ci)=>{
+    lines.push("== " + c.title.toUpperCase() + " ==");
+    QUESTIONS.filter(q=>q.ch === ci).forEach(q=>{
+      lines.push("");
+      lines.push(String(q.id).padStart(2,"0") + ". " + q.q);
+      lines.push((answerText(q) || "—"));
+    });
+    lines.push("");
+  });
+  lines.push("== " + CROQUIS_TITLE + " ==");
+  lines.push(CROQUIS_TEXT);
+  state.croquis.legends.forEach((l,i)=>lines.push((i+1) + ". " + (l || "—")));
+  lines.push("");
+  lines.push("== " + BONUS_TITLE + " ==");
+  lines.push(BONUS_TEXT);
+  lines.push(state.bonus || "—");
+
+  const blob = new Blob([lines.join("\r\n")], {type:"text/plain;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "carnet-enquete-monument-montpellier.txt";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  toast("Carnet téléchargé !");
+}
+
+/* =========================================================
+   CONFETTIS
+   ========================================================= */
+function confetti(){
+  const cv = $("#confetti");
+  const ctx = cv.getContext("2d");
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
+  cv.style.width = innerWidth + "px"; cv.style.height = innerHeight + "px";
+  ctx.scale(dpr,dpr);
+  const colors = ["#e9b949","#d94f45","#0f6b6b","#8fb3a3","#f7d989","#ffffff"];
+  const parts = Array.from({length:140},()=>({
+    x: innerWidth/2 + (Math.random()-.5)*160,
+    y: innerHeight/2 + (Math.random()-.5)*80,
+    vx: (Math.random()-.5)*12,
+    vy: -Math.random()*12 - 4,
+    g: .3 + Math.random()*.2,
+    r: 3 + Math.random()*6,
+    rot: Math.random()*Math.PI,
+    vr: (Math.random()-.5)*.3,
+    c: colors[Math.floor(Math.random()*colors.length)],
+    life: 1
+  }));
+  let raf;
+  const start = performance.now();
+  function frame(t){
+    const dt = Math.min((t-start)/16.6, 2);
+    ctx.clearRect(0,0,innerWidth,innerHeight);
+    parts.forEach(p=>{
+      p.vy += p.g*dt; p.x += p.vx*dt; p.y += p.vy*dt; p.rot += p.vr*dt;
+      p.life -= .006*dt;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.globalAlpha = Math.max(p.life,0);
+      ctx.fillStyle = p.c;
+      ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.6);
+      ctx.restore();
+    });
+    if(t-start < 3200) raf = requestAnimationFrame(frame);
+    else ctx.clearRect(0,0,innerWidth,innerHeight);
+  }
+  cancelAnimationFrame(raf);
+  raf = requestAnimationFrame(frame);
+}
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+function isFormTarget(t){
+  return !!(t && t.closest && t.closest("input,textarea,canvas,button,select,a"));
+}
+let swipe = null;
+document.addEventListener("pointerdown", e=>{
+  if(isFormTarget(e.target)) return;
+  swipe = {x:e.clientX, y:e.clientY};
+}, {passive:true});
+document.addEventListener("pointerup", e=>{
+  if(!swipe) return;
+  const dx = e.clientX - swipe.x, dy = e.clientY - swipe.y;
+  swipe = null;
+  if(Math.abs(dx) < 80 || Math.abs(dy) > 60) return;
+  const step = SCENES[state.scene];
+  if(!step || !["q","draw","bonus","chapter","brief"].includes(step.type)) return;
+  if(dx < 0) goScene(state.scene + 1);
+  else goScene(state.scene - 1);
+}, {passive:true});
+
+document.addEventListener("keydown", e=>{
+  if(e.target && e.target.matches("textarea,input")) return;
+  if(e.key === "ArrowRight") goScene(state.scene + 1);
+  if(e.key === "ArrowLeft") goScene(state.scene - 1);
+});
+
+$("#btnHome").addEventListener("click", ()=>{
+  sfx("click");
+  state.scene = 0; render();
+});
+$("#btnCarnet").addEventListener("click", ()=>{
+  sfx("click");
+  state.scene = SCENES.length - 1; render();
+});
+$("#btnSound").addEventListener("click", ()=>{
+  state.sound = !state.sound;
+  saveState();
+  $("#btnSound").textContent = state.sound ? "🔊" : "🔇";
+  if(state.sound) sfx("good");
+});
+
+/* =========================================================
+   DÉMARRAGE
+   ========================================================= */
+const hadSave = loadState();
+if(hadSave && state.scene > 0 && state.scene < SCENES.length){
+  // on reste sur l'accueil, mais on propose de reprendre
+  state.scene = 0;
+}
+render();
+</script>
+</body>
+</html>
